@@ -16,6 +16,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'provetrina',
     'provetrina.accounts',
+    'provetrina.profiles',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

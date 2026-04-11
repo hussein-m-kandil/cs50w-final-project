@@ -9,9 +9,17 @@ from rest_framework_simplejwt.views import (
 )
 
 from provetrina.accounts.views import UserViewSet
+from provetrina.profiles import views as prof_views
 
 router = DefaultRouter()
 router.register(r'accounts', UserViewSet)
+router.register(r'profiles', prof_views.ProfileViewSet, 'profile')
+router.register(r'projects', prof_views.ProjectViewSet, 'project')
+router.register(r'courses', prof_views.CourseViewSet, 'course')
+router.register(r'skills', prof_views.SkillViewSet, 'skill')
+router.register(r'links', prof_views.LinkViewSet, 'link')
+router.register(r'works', prof_views.WorkExperienceViewSet, 'work')
+router.register(r'educations', prof_views.EducationViewSet, 'education')
 
 api_urls = [
     path('', include(router.urls)),
