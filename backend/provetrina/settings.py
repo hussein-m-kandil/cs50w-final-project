@@ -14,12 +14,17 @@ DEBUG = os.getenv('DEBUG') == 'True'
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
+    'provetrina',
+    'provetrina.accounts',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_spectacular',
+    'rest_framework',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -91,3 +96,27 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+
+AUTH_USER_MODEL = 'accounts.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Provetrina API',
+    'DESCRIPTION': 'A platform where skilled professionals shine.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
