@@ -10,10 +10,28 @@ def _get_falsy_field_value_err_msg(falsy):
     return 'This field is required.'
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     password_confirmation = serializers.CharField(
         write_only=True, style={'input_type': 'password'}
     )
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'password',
+            'password_confirmation',
+        ]
+        read_only_fields = ['id']
+        extra_kwargs = {
+            'password': {
+                'write_only': True,
+                'style': {'input_type': 'password'},
+            }
+        }
 
     def validate_password(self, password):
         """Validate the password via Django's default validators."""
@@ -54,25 +72,3 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             user.set_password(password)
             user.save()
         return super().update(user, validated_data)
-
-    class Meta:
-        model = User
-        fields = [
-            'id',
-            'url',
-            'username',
-            'password',
-            'password_confirmation',
-            'first_name',
-            'last_name',
-            'email',
-            'last_login',
-            'date_joined',
-        ]
-        read_only_fields = ['id', 'url', 'last_login', 'date_joined']
-        extra_kwargs = {
-            'password': {
-                'write_only': True,
-                'style': {'input_type': 'password'},
-            }
-        }

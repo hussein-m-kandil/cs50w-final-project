@@ -53,6 +53,60 @@ class TestAccountsListAction(APITestCase):
         self.assertNotContains(response, '"next":', status_code=code)
 
 
+class TestAccountsRetrieveAction(APITestCase):
+    base_url = reverse('user-list')
+    user: User
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='test_user', password='123$Test'
+        )
+
+    def authenticate(self):
+        self.client.force_authenticate(user=self.user)  # type: ignore
+        return self.user
+
+    def test_account_retrieved(self):
+        user = self.authenticate()
+        url1 = self.base_url + str(self.user.pk) + '/'
+        url2 = self.base_url + 'me/'
+        for url in [url1, url2]:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertContains(response, user.pk, 1)
+
+    def test_account_not_retrieved_without_authentication(self):
+        url1 = self.base_url + str(self.user.pk) + '/'
+        url2 = self.base_url + 'me/'
+        for url in [url1, url2]:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertEqual(
+                    response.status_code, status.HTTP_401_UNAUTHORIZED
+                )
+
+    def test_account_not_retrieved_with_non_owner_authentication(self):
+        non_owners = [
+            User.objects.create_user(
+                username='test_user_2', password='123@Test2'
+            ),
+            User.objects.create_superuser(
+                username='test_user_3', password='123@Test3', email=''
+            ),
+        ]
+        url = self.base_url + str(self.user.pk) + '/'
+        for user in non_owners:
+            self.client.force_authenticate(user=user)  # type: ignore
+            with self.subTest(user=user):
+                response = self.client.get(url)
+                if user.is_staff:
+                    self.assertContains(response, self.user.pk, 1)
+                else:
+                    self.assertEqual(
+                        response.status_code, status.HTTP_403_FORBIDDEN
+                    )
+
+
 class TestAccountsCreateAction(APITestCase):
     url = reverse('user-list')
     data = {
