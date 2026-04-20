@@ -2,4 +2,10 @@
   <h1 class="text-5xl font-bold text-center">{{title}}</h1>
 </header>
 
-<router-outlet />
+<main class="text-center">
+  <p-button label="Toggle Dark Mode" (onClick)="toggleDarkMode()" />
+
+  <router-outlet />
+
+  <p-toast position="bottom-right" class="w-[calc(100%-40px)] max-w-md" />
+</main>
