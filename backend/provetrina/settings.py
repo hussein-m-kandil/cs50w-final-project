@@ -3,6 +3,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from .utils import parse_comma_sep_str
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -11,7 +13,11 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = os.getenv('DEBUG') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = parse_comma_sep_str(os.getenv('ALLOWED_HOSTS', ''))
+print('Allowed Hosts:', ALLOWED_HOSTS)
+
+CORS_ALLOWED_ORIGINS = parse_comma_sep_str(os.getenv('ALLOWED_ORIGINS', ''))
+print('Allowed Origins:', CORS_ALLOWED_ORIGINS)
 
 INSTALLED_APPS = [
     'provetrina',
@@ -23,12 +29,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'drf_spectacular',
     'rest_framework',
     'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
