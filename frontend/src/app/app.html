@@ -1,11 +1,20 @@
-<header>
-  <h1 class="text-5xl font-bold text-center">{{title}}</h1>
-</header>
+<div class="bg-(--p-content-background)">
+  <header>
+    <h1 class="text-5xl font-bold text-center">{{title}}</h1>
+  </header>
 
-<main class="text-center">
-  <p-button label="Toggle Dark Mode" (onClick)="toggleDarkMode()" />
+  <main>
+    <div class="text-center">
+      <p-button label="Toggle Dark Mode" (onClick)="toggleDarkMode()" />
+    </div>
 
-  <router-outlet />
+    @if (navigation.isInitial() || navigation.navigating() ||
+    navigation.error()) {
+    <app-navigator />
+    } @else {
+    <router-outlet />
+    }
+  </main>
 
   <p-toast position="bottom-right" class="w-[calc(100%-40px)] max-w-md" />
-</main>
+</div>
