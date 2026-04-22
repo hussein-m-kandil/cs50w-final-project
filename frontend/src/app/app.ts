@@ -1,22 +1,20 @@
+import { RouterOutlet, RouterLink } from '@angular/router';
 import { Navigation, Navigator } from './navigation';
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { environment } from '../environments';
 import { MessageService } from 'primeng/api';
-import { Button } from 'primeng/button';
+import { Accounts } from './accounts';
 import { Toast } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Navigator, Toast, Button],
+  imports: [NgTemplateOutlet, RouterOutlet, RouterLink, Navigator, Toast],
   templateUrl: './app.html',
   providers: [MessageService],
 })
 export class App {
   protected readonly title = environment.title;
   protected readonly navigation = inject(Navigation);
-
-  protected toggleDarkMode() {
-    document.documentElement.classList.toggle('app-dark');
-  }
+  protected readonly accounts = inject(Accounts);
 }

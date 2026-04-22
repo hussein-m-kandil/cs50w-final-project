@@ -1,10 +1,15 @@
-import { RouterTestingHarness } from '@angular/router/testing';
 import { provideRouter, Router, UrlTree } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { TestBed } from '@angular/core/testing';
 import { Navigation } from './navigation';
+import { Accounts } from '../accounts';
+
+const accountsMock = { purgeAuthData: vi.fn(), navigationOptions: {} };
 
 const setup = async () => {
-  TestBed.configureTestingModule({ providers: [provideRouter([])] });
+  TestBed.configureTestingModule({
+    providers: [provideRouter([]), { provide: Accounts, useValue: accountsMock }],
+  });
   const routerHarness = await RouterTestingHarness.create();
   const service = TestBed.inject(Navigation);
   const router = TestBed.inject(Router);
