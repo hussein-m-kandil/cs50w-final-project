@@ -38,23 +38,24 @@ describe('App Utils', () => {
         undefined,
         { foo: 'bar' },
         new HttpErrorResponse({ status: 500 }),
-        new HttpErrorResponse({ status: 400, error: message }),
-        new HttpErrorResponse({ status: 400, error: { message } }),
-        new HttpErrorResponse({ status: 400, error: { error: message } }),
-        new HttpErrorResponse({ status: 400, error: { error: { message } } }),
+        new HttpErrorResponse({ status: 400, error: { detail: message } }),
+        new HttpErrorResponse({ status: 400, error: { non_field_errors: [message] } }),
       ];
-      for (const res of responses) expect(Utils.getResErrMsg(res)).toBeNull();
+      for (const res of responses) {
+        expect(Utils.getResErrMsg(res)).toBeNull();
+      }
     });
 
     it('should return an error message', () => {
       const message = 'Test error!';
       const responses = [
-        new HttpErrorResponse({ status: 400, error: message }),
-        new HttpErrorResponse({ status: 400, error: { message } }),
-        new HttpErrorResponse({ status: 400, error: { error: message } }),
-        new HttpErrorResponse({ status: 400, error: { error: { message } } }),
+        new HttpErrorResponse({ status: 400, error: { detail: message } }),
+        new HttpErrorResponse({ status: 400, error: { non_field_errors: [message] } }),
       ];
-      for (const res of responses) expect(Utils.getResErrMsg(res)).toBe(message);
+      for (const res of responses) {
+        expect(Utils.getResErrMsg(res)).toBe(message);
+      }
+      expect(Utils.getResErrMsg(new HttpErrorResponse({ status: 403 }))).toMatch(/forbidden/i);
     });
   });
 

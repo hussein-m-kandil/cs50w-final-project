@@ -4,15 +4,20 @@ const NETWORK_ERR_MSG = 'Failed! Check your internet connection.';
 
 export function getResErrMsg(res: unknown): string | null {
   if (res instanceof HttpErrorResponse) {
-    if (res.error instanceof ProgressEvent && res.status === 0) return NETWORK_ERR_MSG;
-    else if (res.error) {
-      const { error } = res;
-      if (error.error) {
-        if (typeof error.error === 'string') return error.error;
-        else if (typeof error.error.message === 'string') return error.error.message;
-      } else if (typeof error.message === 'string') return error.message;
-      else if (typeof error === 'string') return error;
+    if (res.error) {
+      if (res.error instanceof ProgressEvent && res.status === 0) {
+        return NETWORK_ERR_MSG;
+      }
+      const detail = res.error['detail'] as unknown;
+      if (typeof detail === 'string') {
+        return detail;
+      }
+      const nonFieldErrors = res.error['non_field_errors'] as unknown[] | undefined;
+      if (nonFieldErrors && typeof nonFieldErrors[0] === 'string') {
+        return nonFieldErrors[0];
+      }
     }
+    if (res.status === 403) return 'Forbidden.';
   }
   return null;
 }
