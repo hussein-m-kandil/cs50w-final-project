@@ -1,0 +1,38 @@
+<div class="bg-primary flex flex-wrap justify-center items-center p-2">
+  <h1 class="text-primary-contrast text-2xl text-center font-bold">
+    <a [routerLink]="['/']">{{ title }}</a>
+  </h1>
+  <nav class="ms-auto max-[20rem]:me-auto">
+    <ul class="flex items-center *:leading-0 **:[button]:**:leading-0!">
+      <li>
+        @let _selectedScheme = colorScheme.selectedScheme();
+        <button pButton pRipple rounded size="small" type="button"
+                [icon]="_selectedScheme.icon"
+                (click)="colorSchemeMenu.toggle($event)"
+                aria-label="Change the {{ _selectedScheme.value }} color scheme."></button>
+        <p-menu #colorSchemeMenu [model]="colorSchemeMenuItems()"
+                ariaLabel="Color scheme menu" [popup]="true" />
+      </li>
+      @if (accounts.authenticated()) {
+      <li>
+        <a pButton pRipple rounded size="small" [icon]="'pi pi-user'"
+           [routerLink]="['/account']" aria-label="Account"></a>
+      </li>
+      <li>
+        <button pButton pRipple rounded size="small" [icon]="'pi pi-sign-out'"
+                type="button" (click)="signOut()"
+                aria-label="Sign Out"></button>
+      </li>
+      } @else {
+      <li>
+        <a pButton pRipple rounded size="small" [icon]="'pi pi-sign-in'"
+           [routerLink]="['/signin']" aria-label="Sign In"></a>
+      </li>
+      <li>
+        <a pButton pRipple rounded size="small" [icon]="'pi pi-user-plus'"
+           [routerLink]="['/signup']" aria-label="Sign Up"></a>
+      </li>
+      }
+    </ul>
+  </nav>
+</div>

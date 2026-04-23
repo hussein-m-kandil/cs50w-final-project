@@ -1,15 +1,15 @@
-import { RouterOutlet, RouterLink } from '@angular/router';
 import { Navigation, Navigator } from './navigation';
-import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { environment } from '../environments';
 import { MessageService } from 'primeng/api';
 import { Accounts } from './accounts';
 import { Toast } from 'primeng/toast';
+import { Mainbar } from './mainbar';
 
 @Component({
   selector: 'app-root',
-  imports: [NgTemplateOutlet, RouterOutlet, RouterLink, Navigator, Toast],
+  imports: [RouterOutlet, Navigator, Toast, Mainbar],
   templateUrl: './app.html',
   providers: [MessageService],
 })
