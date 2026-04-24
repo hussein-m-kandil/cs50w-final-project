@@ -124,6 +124,23 @@ describe('authInterceptor', () => {
     }
   });
 
+  it('should not try to refresh on a 401 response status, and purge auth data if there is no auth data', async () => {
+    const { http, httpTesting } = setup(vi.fn(() => null));
+    let reqCompleted = false;
+    const completeReq = () => setTimeout(() => (reqCompleted = true), 0);
+    for (const method of httpMethods) {
+      http
+        .request(new HttpRequest(method, url, null))
+        .subscribe({ next: completeReq, error: completeReq });
+      const req = httpTesting.expectOne({ method, url });
+      req.flush(null, { status: 401, statusText: 'Unauthorized' });
+      await vi.waitUntil(() => reqCompleted);
+      expect(accountsMock.purgeAuthData).toHaveBeenCalledTimes(1);
+      accountsMock.purgeAuthData.mockClear();
+      httpTesting.verify();
+    }
+  });
+
   it('should not purge auth data any response status other that the 401', async () => {
     const { http, httpTesting } = setup();
     let reqCompleted = false;

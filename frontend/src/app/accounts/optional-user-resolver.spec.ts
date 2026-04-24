@@ -1,24 +1,24 @@
 import { ActivatedRouteSnapshot, ResolveFn, RouterStateSnapshot } from '@angular/router';
+import { optionalUserResolver } from './optional-user-resolver';
 import { Observable, of, firstValueFrom, throwError } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
-import { userResolver } from './user-resolver';
 import { User } from './accounts.types';
 import { Accounts } from './accounts';
 import { Mock } from 'vitest';
 
-const setup = (userMock: Mock) => {
-  const executeResolver: ResolveFn<User> = (...resolverParameters) => {
-    return TestBed.runInInjectionContext(() => userResolver(...resolverParameters));
+const setup = (getUserMock: Mock) => {
+  const executeResolver: ResolveFn<User | null> = (...resolverParameters) => {
+    return TestBed.runInInjectionContext(() => optionalUserResolver(...resolverParameters));
   };
   TestBed.configureTestingModule({
-    providers: [{ provide: Accounts, useValue: { getUser: userMock } }],
+    providers: [{ provide: Accounts, useValue: { getUser: getUserMock } }],
   });
   return { executeResolver };
 };
 
 const resolverArgs = [{} as ActivatedRouteSnapshot, {} as RouterStateSnapshot] as const;
 
-describe('userResolver', () => {
+describe('optionalUserResolver', () => {
   it('should return the auth user', async () => {
     const expectedUser = { id: 1 };
     const { executeResolver } = setup(vi.fn(() => of(expectedUser)));
@@ -27,12 +27,12 @@ describe('userResolver', () => {
     expect(await firstValueFrom(user$)).toStrictEqual(expectedUser);
   });
 
-  it('should throw if an error has occurred', async () => {
+  it('should return null if an error has occurred', async () => {
     const { executeResolver } = setup(
-      vi.fn(() => throwError(() => new Error('Test user resolver failure'))),
+      vi.fn(() => throwError(() => new Error('Test optional user resolver failure'))),
     );
     const user$ = executeResolver(...resolverArgs) as Observable<User>;
     expect(user$).toBeInstanceOf(Observable);
-    await expect(async () => await firstValueFrom(user$)).rejects.toThrow();
+    expect(await firstValueFrom(user$)).toBeNull();
   });
 });

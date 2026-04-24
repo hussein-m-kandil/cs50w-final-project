@@ -1,25 +1,38 @@
-import { AccountForm, authGuard, AccountDeleteForm, userResolver } from './accounts';
+import {
+  authGuard,
+  AccountForm,
+  userResolver,
+  AccountDeleteForm,
+  optionalUserResolver,
+} from './accounts';
 import { Account } from './accounts/account/account';
 import { Routes } from '@angular/router';
 import { NotFound } from './not-found';
 
 export const routes: Routes = [
-  { path: 'not-found', title: '404 Not Found', component: NotFound },
   {
     path: '',
-    canActivateChild: [authGuard],
     runGuardsAndResolvers: 'always',
+    resolve: { user: optionalUserResolver },
     children: [
-      { path: 'signin', title: 'Sing In', component: AccountForm },
-      { path: 'signup', title: 'Sing Up', component: AccountForm },
+      { path: 'not-found', title: '404 Not Found', component: NotFound },
       {
-        path: 'account',
-        resolve: { user: userResolver },
+        path: '',
+        canActivateChild: [authGuard],
         runGuardsAndResolvers: 'always',
         children: [
-          { path: '', title: 'Account', component: Account },
-          { path: 'edit', title: 'Edit Account', component: AccountForm },
-          { path: 'delete', title: 'Delete Account', component: AccountDeleteForm },
+          { path: 'signin', title: 'Sing In', component: AccountForm },
+          { path: 'signup', title: 'Sing Up', component: AccountForm },
+          {
+            path: 'account',
+            resolve: { user: userResolver },
+            runGuardsAndResolvers: 'always',
+            children: [
+              { path: '', title: 'Account', component: Account },
+              { path: 'edit', title: 'Edit Account', component: AccountForm },
+              { path: 'delete', title: 'Delete Account', component: AccountDeleteForm },
+            ],
+          },
         ],
       },
     ],

@@ -50,19 +50,22 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authData = accounts.authData();
   return next(authData ? authorize(req, authData.access) : req).pipe(
     catchError((error) => {
-      const staleAuthData = accounts.authData();
-      if (staleAuthData && isUnauthorized(error)) {
-        return refreshAuthToken(httpBackend, accounts, staleAuthData).pipe(
-          mergeMap((res) => {
-            const access = res.body && res.body['access'];
-            if (access) {
-              accounts.updateAuthData({ ...staleAuthData, access });
-              return next(authorize(req, access));
-            }
-            accounts.purgeAuthData();
-            throw HTTP_401_ERR_RES;
-          }),
-        );
+      if (isUnauthorized(error)) {
+        const staleAuthData = accounts.authData();
+        if (staleAuthData) {
+          return refreshAuthToken(httpBackend, accounts, staleAuthData).pipe(
+            mergeMap((res) => {
+              const access = res.body && res.body['access'];
+              if (access) {
+                accounts.updateAuthData({ ...staleAuthData, access });
+                return next(authorize(req, access));
+              }
+              accounts.purgeAuthData();
+              throw HTTP_401_ERR_RES;
+            }),
+          );
+        }
+        accounts.purgeAuthData();
       }
       throw error;
     }),

@@ -11,7 +11,7 @@ const user = { id: 1, username: 'foo_bar', first_name: 'Foo', last_name: 'Bar' }
 const accountsMock = {
   authenticated: vi.fn(() => true),
   signOut: vi.fn(),
-  user: vi.fn(() => user),
+  user: vi.fn(() => user as typeof user | null),
 };
 
 const colorSchemeMock = {
@@ -91,6 +91,7 @@ describe('Mainbar', () => {
 
   it('should has the nav links for an unauthenticated user', async () => {
     accountsMock.authenticated.mockImplementation(() => false);
+    accountsMock.user.mockImplementation(() => null);
     await renderComponent();
     const signinLink = screen.getByRole('link', { name: /sign ?in/i }) as HTMLAnchorElement;
     const signupLink = screen.getByRole('link', { name: /sign ?up/i }) as HTMLAnchorElement;
@@ -98,20 +99,26 @@ describe('Mainbar', () => {
     expect(signupLink).toBeVisible();
     expect(signinLink.href).toMatch(/signin$/);
     expect(signupLink.href).toMatch(/signup$/);
+    expect(screen.queryByRole('link', { name: /profile/i })).toBeNull();
   });
 
   it('should has the nav links for an authenticated user', async () => {
     accountsMock.authenticated.mockImplementation(() => true);
+    accountsMock.user.mockImplementation(() => user);
     await renderComponent();
+    const profileLink = screen.getByRole('link', { name: /profile/i }) as HTMLAnchorElement;
     const accountLink = screen.getByRole('link', { name: /account/i }) as HTMLAnchorElement;
     const signoutButton = screen.getByRole('button', { name: /sign ?out/i }) as HTMLButtonElement;
+    expect(profileLink).toBeVisible();
     expect(accountLink).toBeVisible();
     expect(signoutButton).toBeVisible();
+    expect(profileLink.href).toMatch(/1$/);
     expect(accountLink.href).toMatch(/account$/);
   });
 
   it('should sign-out', async () => {
     accountsMock.authenticated.mockImplementation(() => true);
+    accountsMock.user.mockImplementation(() => user);
     const actor = userEvent.setup();
     await renderComponent();
     await actor.click(screen.getByRole('button', { name: /sign out/i }));
