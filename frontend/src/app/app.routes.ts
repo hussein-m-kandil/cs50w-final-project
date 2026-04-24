@@ -1,8 +1,10 @@
 import { AccountForm, authGuard, AccountDeleteForm, userResolver } from './accounts';
 import { Account } from './accounts/account/account';
 import { Routes } from '@angular/router';
+import { NotFound } from './not-found';
 
 export const routes: Routes = [
+  { path: 'not-found', title: '404 Not Found', component: NotFound },
   {
     path: '',
     canActivateChild: [authGuard],
