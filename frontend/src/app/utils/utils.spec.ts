@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import * as Utils from './utils';
+import { FormControl, FormGroup } from '@angular/forms';
 
 const errorMessage = signal('');
 const defaultMessage = 'Test default error message';
@@ -56,6 +57,37 @@ describe('App Utils', () => {
         expect(Utils.getResErrMsg(res)).toBe(message);
       }
       expect(Utils.getResErrMsg(new HttpErrorResponse({ status: 403 }))).toMatch(/forbidden/i);
+    });
+  });
+
+  describe(Utils.handleFormGroupSubmissionError.name, () => {
+    it('should set field validation error and return the first non-field error', () => {
+      const non_field_errors = ['test non-field error #1', 'test non-field error #1'];
+      const error = {
+        non_field_errors,
+        field1: 'test field error #1',
+        field2: 'test field error #2',
+      };
+      const formGroup = new FormGroup({ field2: new FormControl(''), field3: new FormControl('') });
+      const response = new HttpErrorResponse({ status: 400, error });
+      const result = Utils.handleFormGroupSubmissionError(formGroup, response);
+      expect(formGroup.valid).toBe(false);
+      expect(formGroup.invalid).toBe(true);
+      expect(formGroup.controls.field2.errors).toStrictEqual({ validation: error.field2 });
+      expect(formGroup.controls.field3.errors).toBeNull();
+      expect(result.nonFieldError).toBe(non_field_errors[0]);
+    });
+
+    it('should return the error detail as non-field error and leave the form clean', () => {
+      const error = { detail: 'test error detail' };
+      const formGroup = new FormGroup({ field: new FormControl('') });
+      const response = new HttpErrorResponse({ status: 400, error });
+      const result = Utils.handleFormGroupSubmissionError(formGroup, response);
+      expect(formGroup.valid).toBe(true);
+      expect(formGroup.invalid).toBe(false);
+      expect(formGroup.errors).toBeNull();
+      expect(formGroup.controls.field.errors).toBeNull();
+      expect(result.nonFieldError).toBe(error.detail);
     });
   });
 
