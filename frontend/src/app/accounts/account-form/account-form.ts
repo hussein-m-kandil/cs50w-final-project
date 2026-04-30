@@ -7,12 +7,12 @@ import {
   ValidationErrors,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, OnChanges, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SignupData, User } from '../accounts.types';
 import { NgTemplateOutlet } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
@@ -51,21 +51,21 @@ export const passwordsMatchValidator: ValidatorFn = (
   ],
   templateUrl: './account-form.html',
 })
-export class AccountForm implements OnInit {
-  protected readonly SIGN_IN_LABEL = 'Sign In';
-  protected readonly SIGN_UP_LABEL = 'Sign Up';
-  protected readonly EDIT_LABEL = 'Edit Account';
+export class AccountForm implements OnInit, OnChanges {
+  // NOTE: Any required fields makes the `OnInit` handler redundant.
+  readonly user = input<User>();
   protected readonly passwordHidden = signal(true);
   protected readonly confirmationHidden = signal(true);
 
   private readonly _activeRoute = inject(ActivatedRoute);
   private readonly _toast = inject(MessageService);
   private readonly _accounts = inject(Accounts);
-  private readonly _router = inject(Router);
-
-  readonly user = input<User>();
 
   private readonly _activatedPath = this._activeRoute.snapshot.url.at(-1)?.path || '';
+
+  protected readonly SIGN_IN_LABEL = 'Sign In';
+  protected readonly SIGN_UP_LABEL = 'Sign Up';
+  protected readonly EDIT_LABEL = 'Edit Account';
 
   protected readonly info = this._activatedPath.endsWith('signup')
     ? ({
@@ -125,6 +125,17 @@ export class AccountForm implements OnInit {
   }
 
   private readonly _destroyRef = inject(DestroyRef);
+
+  private _initForm() {
+    if (this.editing) {
+      const user = this.user();
+      if (user) {
+        this.form.controls.username.setValue(user.username);
+        this.form.controls.first_name?.setValue(user.first_name);
+        this.form.controls.last_name?.setValue(user.last_name);
+      }
+    }
+  }
 
   protected submit() {
     this.form.markAllAsTouched();
@@ -207,13 +218,10 @@ export class AccountForm implements OnInit {
   }
 
   ngOnInit() {
-    if (this.editing) {
-      const user = this.user();
-      if (user) {
-        this.form.controls.username.setValue(user.username);
-        this.form.controls.first_name?.setValue(user.first_name);
-        this.form.controls.last_name?.setValue(user.last_name);
-      }
-    }
+    this._initForm();
+  }
+
+  ngOnChanges() {
+    this._initForm();
   }
 }
