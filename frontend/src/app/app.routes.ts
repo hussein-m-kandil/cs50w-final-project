@@ -5,6 +5,7 @@ import {
   AccountDeleteForm,
   optionalUserResolver,
 } from './accounts';
+import { Profile, profileResolver, CreateProfile, ProfileList } from './profiles';
 import { Account } from './accounts/account/account';
 import { Routes } from '@angular/router';
 import { NotFound } from './not-found';
@@ -15,6 +16,7 @@ export const routes: Routes = [
     runGuardsAndResolvers: 'always',
     resolve: { user: optionalUserResolver },
     children: [
+      { path: '', component: ProfileList },
       { path: 'not-found', title: '404 Not Found', component: NotFound },
       {
         path: '',
@@ -34,6 +36,18 @@ export const routes: Routes = [
             ],
           },
         ],
+      },
+      {
+        path: 'create',
+        title: 'Create Profile',
+        component: CreateProfile,
+      },
+      {
+        path: ':profileId',
+        title: 'Profile',
+        component: Profile,
+        runGuardsAndResolvers: 'always',
+        resolve: { profile: profileResolver },
       },
     ],
   },
