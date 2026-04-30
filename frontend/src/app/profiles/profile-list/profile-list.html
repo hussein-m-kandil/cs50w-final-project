@@ -1,0 +1,44 @@
+<div class="p-4 flex flex-wrap justify-center">
+  <ng-template #li let-_profile>
+    <article
+             class="w-3xs max-w-full border border-surface rounded-xl p-6 text-sm text-muted-color *:space-x-2 *:truncate">
+      <h2 class="text-color text-3xl font-bold leading-7 mb-3">
+        <a [routerLink]="[_profile.id]">
+          {{ _profile.name }}
+          @if (_profile.title) {
+          <br />
+          <span class="text-primary text-lg font-bold leading-tight">
+            {{ _profile.title }}
+          </span>
+          }
+        </a>
+      </h2>
+      @if (_profile.location) {
+      <p>
+        <span class="pi pi-map-marker text-sm"></span>
+        <span>{{ _profile.location }}</span>
+      </p>
+      }
+      @if (_profile.tel) {
+      <p>
+        <span class="pi pi-phone text-sm"></span>
+        <a href="tel:{{_profile.tel}}"
+           class="hover:underline">{{ _profile.tel }}</a>
+      </p>
+      }
+      @if (_profile.email) {
+      <p>
+        <span class="pi pi-envelope text-sm"></span>
+        <a href="mailto:{{_profile.email}}"
+           class="hover:underline">{{ _profile.email }}</a>
+      </p>
+      }
+      @if (_profile.bio) {
+      <p class="mt-3 text-base font-light">{{ _profile.bio }}</p>
+      }
+    </article>
+  </ng-template>
+
+  <app-list autoLoadMore [store]="profiles" singularLabel="Profile"
+            pluralLabel="Profiles" [itemFragment]="li" />
+</div>

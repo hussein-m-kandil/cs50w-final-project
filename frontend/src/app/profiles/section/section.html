@@ -1,0 +1,36 @@
+@let _profileId = profileId();
+@let _editable = editable();
+@let _section = section();
+@let _header = header();
+@let _adding = adding();
+
+<div class="mb-2 flex justify-between">
+  <h3 class="text-2xl font-bold">
+    {{ _header }}
+  </h3>
+  <!-- esc --> @if (_editable && _section.entries.length < 7) { <!-- esc -->
+  <p-button text rounded [size]="'small'" [severity]="'secondary'"
+            [ariaLabel]="`Add to ${_header}`" [icon]="'pi pi-plus'"
+            (onClick)="toggleAdding()" />
+  }
+</div>
+@if (_editable && _adding) {
+<div class="my-2">
+  <app-section-form [profileId]="_profileId" [slug]="_section.slug"
+                    [order]="getNextOrder(_section.entries)"
+                    (canceled)="toggleAdding()"
+                    (succeeded)="added.emit($event); toggleAdding()" />
+</div>
+}
+<app-list-loader [loading]="_section.loading" [loadError]="_section.error"
+                 [pluralLabel]="'Links'">
+  <div class="ps-8">
+    <!-- esc --> @if (_section.entries.length < 1) { <!-- esc -->
+    <p class="text-sm text-muted-color font-italic">
+      <em>Empty sections are not visible to the public.</em>
+    </p>
+    } @else {
+    <ng-content />
+    }
+  </div>
+</app-list-loader>
