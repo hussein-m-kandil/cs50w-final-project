@@ -46,5 +46,7 @@
   </ng-template>
 
   <app-list [autoLoadMore]="true" [store]="profiles" [pluralLabel]="'Profiles'"
-            [listFragment]="ul" />
+            [listFragment]="ul" [searchable]="true" [searchValue]="q() || ''"
+            [searchLabel]="'Name or job title...'"
+            (searched)="search($event)" />
 </div>

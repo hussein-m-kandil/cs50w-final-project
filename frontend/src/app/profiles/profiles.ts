@@ -33,6 +33,8 @@ export class Profiles extends ListStore<Profile> {
 
   readonly activeProfileSections = signal(initialSections);
 
+  readonly searchValue = signal('');
+
   protected override readonly loadErrorMessage = 'Failed to load posts.';
 
   private _updateActiveProfileSections(slug: Slug, updates: Partial<SectionData>) {
@@ -47,7 +49,10 @@ export class Profiles extends ListStore<Profile> {
   protected override getMore() {
     const nextPageNum = this._nextPageNum();
     if (nextPageNum !== null) {
-      const params: Record<string, number> = nextPageNum ? { page: nextPageNum } : {};
+      const searchValue = this.searchValue();
+      const params: Record<string, number | string> = {};
+      if (nextPageNum) params['page'] = nextPageNum;
+      if (searchValue) params['q'] = searchValue;
       return this._http.get<ListResponse<Profile>>(`${this.baseUrl}profiles/`, { params }).pipe(
         map((res) => {
           let next = null;
@@ -68,6 +73,7 @@ export class Profiles extends ListStore<Profile> {
   override reset() {
     super.reset();
     this._nextPageNum.set(0);
+    this.searchValue.set('');
   }
 
   loadProfileSection(slug: Slug, profileId: Profile['id']) {

@@ -17,10 +17,18 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):  # type: ignore
         user = self.request.user
-        q = Q(public=True)
+        query = Q(public=True)
         if self.action != 'list':
-            q = q | Q(owner_id=user.pk)
-        return models.Profile.objects.filter(q).order_by('owner__username')
+            query = query | Q(owner_id=user.pk)
+        search = self.request.query_params.get('q')  # type: ignore
+        if search:
+            filtration_query = (
+                Q(name__icontains=search)
+                | Q(title__icontains=search)
+                | Q(owner__username__icontains=search)
+            )
+            query = query & filtration_query
+        return models.Profile.objects.filter(query).order_by('owner__username')
 
     def get_permissions(self):
         permission_classes = [IsProfileOwnerOrReadOnlyPublicProfile]

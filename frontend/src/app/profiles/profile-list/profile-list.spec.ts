@@ -9,6 +9,7 @@ const profilesMock = {
   loading: vi.fn(),
   hasMore: vi.fn(),
   loadError: vi.fn(),
+  searchValue: { set: vi.fn() },
 };
 
 const renderComponent = ({ providers, ...options }: RenderComponentOptions<ProfileList> = {}) => {
@@ -21,8 +22,9 @@ const renderComponent = ({ providers, ...options }: RenderComponentOptions<Profi
 
 describe('ProfileList', () => {
   it('should reset and load profiles on init', async () => {
-    await renderComponent();
+    await renderComponent({ inputs: { q: undefined } });
     expect(profilesMock.reset).toHaveBeenCalledTimes(1);
+    expect(profilesMock.searchValue.set).toHaveBeenCalledTimes(1);
     expect(profilesMock.load).toHaveBeenCalledTimes(1);
   });
 
