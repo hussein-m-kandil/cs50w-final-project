@@ -3,7 +3,7 @@
 @let _editingProfile = editingProfile();
 
 <div
-     class="min-h-full max-w-xl mx-auto p-4 space-y-4 *:border-surface *:border *:rounded-xl *:p-4">
+     class="min-h-full max-w-xl mx-auto p-4 space-y-4 *:border-surface *:border *:rounded-2xl *:p-4">
   <article>
     @if (_editingProfile) {
     <app-profile-form [profile]="_profile"
@@ -22,11 +22,11 @@
         }
       </h2>
       @if (_editable) {
-      <div>
-        <p-button text rounded [size]="'small'" [severity]="'secondary'"
+      <div class="space-x-2">
+        <p-button [size]="'small'" [severity]="'secondary'"
                   [ariaLabel]="'Edit Profile'" [icon]="'pi pi-pencil'"
                   (onClick)="toggleEditingProfile()" />
-        <p-button text rounded [size]="'small'" [severity]="'secondary'"
+        <p-button [size]="'small'" [severity]="'secondary'"
                   [ariaLabel]="'Delete Profile'" [icon]="'pi pi-trash'"
                   (onClick)="deleteProfile()" />
       </div>
@@ -65,57 +65,18 @@
     }
   </article>
 
-  @if (getSection(profiles.Slug.LINK); as _links) {
-  <article>
-    <app-section [header]="'Links'" [profileId]="_profile.id"
-                 [section]="_links" [editable]="_editable">
-      <ul class="space-y-2">
-        @for (_link of _links.entries; track $index) {
-        <li>
-          <app-section-entry [editable]="_editable" [entryId]="_link.id"
-                             [header]="_link.label || _link.href"
-                             [headerHref]="_link.href"
-                             [profileId]="_profile.id" [slug]="_links.slug" />
-        </li>
-        }
-      </ul>
-    </app-section>
-  </article>
-  }
-
-  @if (getSection(profiles.Slug.SKILL); as _skills) {
-  <article>
-    <app-section [header]="'Skills'" [profileId]="_profile.id"
-                 [section]="_skills" [editable]="_editable">
-      <ul class="space-y-4">
-        @for (_skill of _skills.entries; track $index) {
-        <li>
-          <app-section-entry [editable]="_editable" [entryId]="_skill.id"
-                             [profileId]="_profile.id" [header]="_skill.name"
-                             [keywords]="_skill.keywords"
-                             [slug]="_skills.slug" />
-        </li>
-        }
-      </ul>
-    </app-section>
-  </article>
-  }
-
   @if (getSection(profiles.Slug.EDUCATION); as _educations) {
   <article>
     <app-section [header]="'Educations'" [profileId]="_profile.id"
-                 [section]="_educations" [editable]="_editable">
-      <ul class="space-y-4">
-        @for (_edu of _educations.entries; track $index) {
-        <li>
-          <app-section-entry [editable]="_editable" [entryId]="_edu.id"
-                             [profileId]="_profile.id" [header]="_edu.title"
-                             [summary]="_edu.summary" [endDate]="_edu.end_date"
-                             [startDate]="_edu.start_date"
-                             [slug]="_educations.slug" />
-        </li>
-        }
-      </ul>
+                 [section]="_educations" [editable]="_editable"
+                 (reordered)="reorderSectionEntries(profiles.Slug.EDUCATION, _educations.entries)">
+      <ng-template #entry let-_edu>
+        <app-section-entry [editable]="_editable" [entryId]="_edu.id"
+                           [profileId]="_profile.id" [header]="_edu.title"
+                           [summary]="_edu.summary" [endDate]="_edu.end_date"
+                           [startDate]="_edu.start_date"
+                           [slug]="_educations.slug" />
+      </ng-template>
     </app-section>
   </article>
   }
@@ -123,22 +84,16 @@
   @if (getSection(profiles.Slug.WORK_EXPERIENCE); as _works) {
   <article>
     <app-section [header]="'Work Experiences'" [profileId]="_profile.id"
-                 [section]="_works" [editable]="_editable">
-      <ul class="space-y-4">
-        @for (_work of _works.entries; track $index) {
-        <li>
-          <app-section-entry [editable]="_editable" [entryId]="_work.id"
-                             [profileId]="_profile.id"
-                             [header]="_work.position"
-                             [subheader]="`at ${_work.company}`"
-                             [startDate]="_work.start_date"
-                             [endDate]="_work.end_date"
-                             [summary]="_work.summary"
-                             [location]="_work.location"
-                             [slug]="_works.slug" />
-        </li>
-        }
-      </ul>
+                 [section]="_works" [editable]="_editable"
+                 (reordered)="reorderSectionEntries(profiles.Slug.WORK_EXPERIENCE, _works.entries)">
+      <ng-template #entry let-_work>
+        <app-section-entry [editable]="_editable" [entryId]="_work.id"
+                           [profileId]="_profile.id" [header]="_work.position"
+                           [subheader]="`at ${_work.company}`"
+                           [startDate]="_work.start_date"
+                           [endDate]="_work.end_date" [summary]="_work.summary"
+                           [location]="_work.location" [slug]="_works.slug" />
+      </ng-template>
     </app-section>
   </article>
   }
@@ -146,22 +101,33 @@
   @if (getSection(profiles.Slug.PROJECT); as _projects) {
   <article>
     <app-section [header]="'Projects'" [profileId]="_profile.id"
-                 [section]="_projects" [editable]="_editable">
-      <ul class="space-y-4">
-        @for (_project of _projects.entries; track $index) {
-        <li>
-          <app-section-entry [editable]="_editable" [entryId]="_project.id"
-                             [profileId]="_profile.id"
-                             [header]="_project.title"
-                             [startDate]="_project.start_date"
-                             [endDate]="_project.end_date"
-                             [headerHref]="_project.href"
-                             [summary]="_project.summary"
-                             [keywords]="_project.keywords"
-                             [slug]="_projects.slug" />
-        </li>
-        }
-      </ul>
+                 [section]="_projects" [editable]="_editable"
+                 (reordered)="reorderSectionEntries(profiles.Slug.PROJECT, _projects.entries)">
+      <ng-template #entry let-_project>
+        <app-section-entry [editable]="_editable" [entryId]="_project.id"
+                           [profileId]="_profile.id" [header]="_project.title"
+                           [startDate]="_project.start_date"
+                           [endDate]="_project.end_date"
+                           [headerHref]="_project.href"
+                           [summary]="_project.summary"
+                           [keywords]="_project.keywords"
+                           [slug]="_projects.slug" />
+      </ng-template>
+    </app-section>
+  </article>
+  }
+
+  @if (getSection(profiles.Slug.SKILL); as _skills) {
+  <article>
+    <app-section [header]="'Skills'" [profileId]="_profile.id"
+                 [section]="_skills" [editable]="_editable"
+                 (reordered)="reorderSectionEntries(profiles.Slug.SKILL, _skills.entries)">
+      <ng-template #entry let-_skill>
+        <app-section-entry [editable]="_editable" [entryId]="_skill.id"
+                           [profileId]="_profile.id" [header]="_skill.name"
+                           [keywords]="_skill.keywords"
+                           [slug]="_skills.slug" />
+      </ng-template>
     </app-section>
   </article>
   }
@@ -169,20 +135,32 @@
   @if (getSection(profiles.Slug.COURSE); as _courses) {
   <article>
     <app-section [header]="'Courses'" [profileId]="_profile.id"
-                 [section]="_courses" [editable]="_editable">
-      <ul class="space-y-4">
-        @for (_course of _courses.entries; track $index) {
-        <li>
-          <app-section-entry [editable]="_editable" [entryId]="_course.id"
-                             [profileId]="_profile.id" [header]="_course.name"
-                             [subheader]="`from ${_course.academy}`"
-                             [startDate]="_course.start_date"
-                             [endDate]="_course.end_date"
-                             [headerHref]="_course.href"
-                             [slug]="_courses.slug" />
-        </li>
-        }
-      </ul>
+                 [section]="_courses" [editable]="_editable"
+                 (reordered)="reorderSectionEntries(profiles.Slug.COURSE, _courses.entries)">
+      <ng-template #entry let-_course>
+        <app-section-entry [editable]="_editable" [entryId]="_course.id"
+                           [profileId]="_profile.id" [header]="_course.name"
+                           [subheader]="`from ${_course.academy}`"
+                           [startDate]="_course.start_date"
+                           [endDate]="_course.end_date"
+                           [headerHref]="_course.href"
+                           [slug]="_courses.slug" />
+      </ng-template>
+    </app-section>
+  </article>
+  }
+
+  @if (getSection(profiles.Slug.LINK); as _links) {
+  <article>
+    <app-section [header]="'Links'" [profileId]="_profile.id"
+                 [section]="_links" [editable]="_editable"
+                 (reordered)="reorderSectionEntries(profiles.Slug.LINK, _links.entries)">
+      <ng-template #entry let-_link>
+        <app-section-entry [editable]="_editable" [entryId]="_link.id"
+                           [header]="_link.label || _link.href"
+                           [headerHref]="_link.href" [profileId]="_profile.id"
+                           [slug]="_links.slug" />
+      </ng-template>
     </app-section>
   </article>
   }

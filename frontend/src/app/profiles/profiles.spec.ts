@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Profile, SectionData, Sections, Slug } from './profiles.types';
+import { Profile, SectionData, SectionEntry, Sections, Slug } from './profiles.types';
 import { Profiles } from './profiles';
 import { environment } from '../../environments';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -248,5 +248,57 @@ describe('Profiles', () => {
         accountsMock.user.mockReset();
       });
     }
+
+    it('should reorder section entries if the request succeeded', async () => {
+      const entries = [
+        { id: 0, order: 0 },
+        { id: 1, order: 1 },
+        { id: 2, order: 2 },
+      ] as SectionEntry[];
+      const orderedEntries = [entries[2], entries[1]];
+      const expectedEntries = [...orderedEntries, entries[0]]; // Any extras comes last
+      const { service, httpTesting } = setup();
+      service.activeProfileSections.update((sections) => ({
+        ...sections,
+        [slug]: { ...sections[slug], entries },
+      }));
+      const requestPromise = firstValueFrom(
+        service.reorderSectionEntries(slug, orderedEntries, profile.id),
+      );
+      const req = httpTesting.expectOne(
+        { method: 'POST', url: `${baseUrl}${slug}reorder/?profile_id=${profile.id}` },
+        `Request to reorder '${slug}'`,
+      );
+      req.flush('', { status: 204, statusText: 'No Content' });
+      await requestPromise;
+      expect(req.request.body).toStrictEqual({ ordered_ids: orderedEntries.map((e) => e.id) });
+      expect(service.activeProfileSections()[slug].entries).toStrictEqual(expectedEntries);
+      httpTesting.verify();
+    });
+
+    it('should not reorder section entries if the request failed', async () => {
+      const entries = [
+        { id: 1, order: 1 },
+        { id: 2, order: 2 },
+      ] as SectionEntry[];
+      const orderedEntries = [entries[1], entries[0]];
+      const { service, httpTesting } = setup();
+      service.activeProfileSections.update((sections) => ({
+        ...sections,
+        [slug]: { ...sections[slug], entries },
+      }));
+      const requestPromise = firstValueFrom(
+        service.reorderSectionEntries(slug, orderedEntries, profile.id),
+      );
+      const req = httpTesting.expectOne(
+        { method: 'POST', url: `${baseUrl}${slug}reorder/?profile_id=${profile.id}` },
+        `Request to reorder '${slug}'`,
+      );
+      req.flush('', { status: 500, statusText: 'Internal Server Error' });
+      await expect(() => requestPromise).rejects.toThrow();
+      expect(req.request.body).toStrictEqual({ ordered_ids: orderedEntries.map((e) => e.id) });
+      expect(service.activeProfileSections()[slug].entries).toStrictEqual(entries);
+      httpTesting.verify();
+    });
   }
 });

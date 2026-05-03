@@ -1,8 +1,13 @@
+import typing
+
+from django.db import transaction
 from django.db.models import Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import viewsets
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
 from provetrina.profiles import models, serializers
@@ -28,7 +33,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 | Q(owner__username__icontains=search)
             )
             query = query & filtration_query
-        return models.Profile.objects.filter(query).order_by('owner__username')
+        return models.Profile.objects.filter(query).order_by(
+            'name', 'owner__username', 'title'
+        )
 
     def get_permissions(self):
         permission_classes = [IsProfileOwnerOrReadOnlyPublicProfile]
@@ -74,6 +81,42 @@ class SectionBaseModelViewSet(viewsets.ModelViewSet):
             .filter(Q(profile_id=user.pk) | Q(profile__public=True))
             .order_by('order')
         )
+
+    @action(detail=False, methods=['post'])
+    def reorder(self, request):
+        serializer = serializers.ReorderSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                profile = models.Profile.objects.get(owner=request.user)
+            except models.Profile.DoesNotExist:
+                return Response(
+                    {'detail': 'Profile not found.'},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+            with transaction.atomic():
+                model = self.serializer_class.Meta.model  # type: ignore
+                model = typing.cast(models.AbstractSection, model)
+                model_objects = model.objects.filter(profile=profile)
+                ordered_ids = typing.cast(dict, serializer.validated_data)[
+                    'ordered_ids'
+                ]
+                ordered_entries = model_objects.filter(id__in=ordered_ids)
+                not_ordered_entries = model_objects.exclude(id__in=ordered_ids)
+                order = 0
+                for i, id in enumerate(ordered_ids):
+                    try:
+                        entry = ordered_entries.get(id=id)
+                        order = i + 1
+                        entry.order = order
+                        entry.save()
+                    except model.DoesNotExist:
+                        pass
+                for entry in not_ordered_entries:
+                    order += 1
+                    entry.order = order
+                    entry.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LinkViewSet(SectionBaseModelViewSet):

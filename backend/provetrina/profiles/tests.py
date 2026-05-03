@@ -1,7 +1,6 @@
 import random
 
 from django.db import IntegrityError
-from django.db.models import Model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone as tz
@@ -240,7 +239,7 @@ class TestProfiles(APITestCase):
 class Section:
     def __init__(
         self,
-        model: type[Model],
+        model: type[models.AbstractSection],
         name: str,
         basename: str,
         data_list: list[dict],
@@ -602,6 +601,74 @@ class TestSections(APITestCase):
                         self.assertEqual(
                             response.status_code, status.HTTP_404_NOT_FOUND
                         )
+
+    def test_section_reordered(self):
+        self.authenticate()
+        for section in self.sections:
+            instances = [
+                section.create_instance(self.profile, section_data)
+                for section_data in section.data_list
+            ]
+            request_data = {
+                'ordered_ids': [
+                    instance.pk for instance in reversed(instances)
+                ]
+            }
+            with self.subTest(section=section):
+                response = self.client.post(
+                    f'{section.url}reorder/', request_data
+                )
+                for instance in instances:
+                    instance.refresh_from_db()
+                sorted_instances = sorted(instances, key=lambda i: i.order)
+                ordered_ids = [srt_inst.pk for srt_inst in sorted_instances]
+                self.assertEqual(request_data['ordered_ids'], ordered_ids)
+                self.assertEqual(
+                    response.status_code, status.HTTP_204_NO_CONTENT
+                )
+
+    def test_section_reordered_with_non_exits_ids(self):
+        self.authenticate()
+        data = {'ordered_ids': [7]}
+        for section in self.sections:
+            with self.subTest(section=section):
+                response = self.client.post(f'{section.url}reorder/', data)
+                self.assertEqual(
+                    response.status_code, status.HTTP_204_NO_CONTENT
+                )
+
+    def test_section_not_reordered_without_profile(self):
+        self.authenticate(
+            models.User.objects.create_user(
+                username='anonymous', password='123$anon'
+            )
+        )
+        data = {'ordered_ids': [1]}
+        for section in self.sections:
+            with self.subTest(section=section):
+                response = self.client.post(f'{section.url}reorder/', data)
+                self.assertEqual(
+                    response.status_code, status.HTTP_404_NOT_FOUND
+                )
+
+    def test_section_not_reordered_without_correct_data(self):
+        self.authenticate()
+        data_list = [None, [1], {}, {'ordered_ids': []}]
+        for section in self.sections:
+            for data in data_list:
+                with self.subTest(section=section, data=data):
+                    response = self.client.post(f'{section.url}reorder/', data)
+                    self.assertEqual(
+                        response.status_code, status.HTTP_400_BAD_REQUEST
+                    )
+
+    def test_section_reorder_not_performed_without_authentication(self):
+        for section in self.sections:
+            with self.subTest(section=section):
+                response = self.client.post(f'{section.url}reorder/', [])
+                self.assertEqual(
+                    response.status_code, status.HTTP_401_UNAUTHORIZED
+                )
 
 
 class TestProjects(APITestCase):

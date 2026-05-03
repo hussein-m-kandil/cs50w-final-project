@@ -88,3 +88,9 @@ class CourseSerializer(SectionBaseSerializer):
 class SkillSerializer(SectionBaseSerializer):
     class Meta(SectionBaseSerializer.Meta):
         model = models.Skill
+
+
+class ReorderSerializer(serializers.Serializer):
+    ordered_ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=1), allow_empty=False
+    )

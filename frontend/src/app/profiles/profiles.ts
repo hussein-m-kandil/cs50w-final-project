@@ -202,4 +202,40 @@ export class Profiles extends ListStore<Profile> {
         }),
       );
   }
+
+  reorderSectionEntries(slug: Slug, orderedEntries: SectionEntry[], profileId: Profile['id']) {
+    const body = { ordered_ids: orderedEntries.map((e) => e.id) };
+    return this._http
+      .post<void>(`${this.baseUrl}${slug}reorder/`, body, {
+        params: { profile_id: profileId },
+      })
+      .pipe(
+        tap({
+          next: () => {
+            const user = this._accounts.user();
+            if (user && user.id === profileId) {
+              const currentEntries = this.activeProfileSections()[slug].entries.slice();
+              const updatedEntries: SectionEntry[] = [];
+              for (const entry of orderedEntries) {
+                const entryIndex = currentEntries.findIndex((e) => e.id === entry.id);
+                if (entryIndex >= 0) {
+                  updatedEntries.push(currentEntries[entryIndex]);
+                  currentEntries.splice(entryIndex, 1);
+                }
+              }
+              updatedEntries.push(...currentEntries);
+              this._updateActiveProfileSections(slug, { entries: updatedEntries });
+            }
+          },
+          error: () => {
+            const user = this._accounts.user();
+            if (user && user.id === profileId) {
+              const entriesCopy = this.activeProfileSections()[slug].entries.slice();
+              const entriesInOriginalOrder = entriesCopy.sort((a, b) => a.order - b.order);
+              this._updateActiveProfileSections(slug, { entries: entriesInOriginalOrder });
+            }
+          },
+        }),
+      );
+  }
 }

@@ -8,7 +8,12 @@ import {
   DestroyRef,
   linkedSignal,
 } from '@angular/core';
-import type { Profile as ProfileT, Slug, Sections as SectionT } from '../profiles.types';
+import type {
+  Slug,
+  Profile as ProfileT,
+  Sections as SectionT,
+  SectionEntry as SectionEntryT,
+} from '../profiles.types';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SectionEntry } from '../section-entry';
 import { ProfileForm } from '../profile-form';
@@ -22,7 +27,7 @@ import { Section } from '../section';
 
 @Component({
   selector: 'app-profile',
-  imports: [ProfileForm, Section, Button, SectionEntry],
+  imports: [ProfileForm, SectionEntry, Section, Button],
   templateUrl: './profile.html',
 })
 export class Profile implements OnChanges {
@@ -82,6 +87,23 @@ export class Profile implements OnChanges {
     return this.editable() || section.loading || section.error || section.entries.length > 0
       ? section
       : null;
+  }
+
+  protected reorderSectionEntries(slug: Slug, entries: SectionEntryT[]) {
+    this.profiles.reorderSectionEntries(slug, entries, this.activeProfile().id).subscribe({
+      error: (res) => {
+        const reason = getResErrMsg(res);
+        this._toast.add({
+          severity: 'error',
+          summary: 'Reorder failed',
+          detail: reason
+            ? 'The following error occurred while reordering the profile section entries: `' +
+              reason.replace(/\.$/, '') +
+              '`.'
+            : 'Failed to reorder the profile section entries.',
+        });
+      },
+    });
   }
 
   ngOnChanges(): void {

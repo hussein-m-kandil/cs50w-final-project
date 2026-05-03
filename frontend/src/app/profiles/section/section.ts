@@ -1,12 +1,22 @@
-import { booleanAttribute, Component, input, output, signal } from '@angular/core';
+import {
+  input,
+  output,
+  signal,
+  Component,
+  TemplateRef,
+  contentChild,
+  booleanAttribute,
+} from '@angular/core';
 import { Profile, SectionData, SectionEntry } from '../profiles.types';
+import { NgTemplateOutlet } from '@angular/common';
 import { SectionForm } from '../section-form';
+import { OrderList } from 'primeng/orderlist';
 import { ListLoader } from '../../list';
 import { Button } from 'primeng/button';
 
 @Component({
   selector: 'app-section',
-  imports: [ListLoader, SectionForm, Button],
+  imports: [NgTemplateOutlet, ListLoader, SectionForm, Button, OrderList],
   templateUrl: './section.html',
 })
 export class Section {
@@ -16,6 +26,9 @@ export class Section {
   readonly header = input.required<string>();
 
   readonly added = output<SectionEntry>();
+  readonly reordered = output();
+
+  protected readonly entryFragment = contentChild<TemplateRef<unknown>>('entry');
 
   protected readonly adding = signal(false);
 
