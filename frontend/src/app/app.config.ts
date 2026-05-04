@@ -6,30 +6,15 @@ import {
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { routes } from './app.routes';
 
-import { PrimeNGConfigType, providePrimeNG } from 'primeng/config';
-import Material from '@primeuix/themes/material';
+import { providePrimeNG } from 'primeng/config';
+import { primengConfig } from './primeng.config';
 
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { DARK_SCHEME_CN, initColorScheme } from './color-scheme';
 import { retryingInterceptor } from './retrying-interceptor';
+import { initColorScheme } from './color-scheme';
 import { authInterceptor } from './accounts';
 
 export const interceptors = [authInterceptor, retryingInterceptor];
-
-export const primengConfig: PrimeNGConfigType = {
-  inputVariant: 'filled',
-  ripple: true,
-  theme: {
-    preset: Material,
-    options: {
-      darkModeSelector: '.' + DARK_SCHEME_CN,
-      cssLayer: {
-        name: 'primeng',
-        order: 'theme, base, primeng',
-      },
-    },
-  },
-};
 
 export const appConfig: ApplicationConfig = {
   providers: [
