@@ -15,10 +15,11 @@ import type {
   SectionEntry as SectionEntryT,
 } from '../profiles.types';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { getResErrMsg, updateRouteTitle } from '../../utils';
+import { Title } from '@angular/platform-browser';
 import { SectionEntry } from '../section-entry';
 import { ProfileForm } from '../profile-form';
 import { MessageService } from 'primeng/api';
-import { getResErrMsg } from '../../utils';
 import { Accounts } from '../../accounts';
 import { Router } from '@angular/router';
 import { Button } from 'primeng/button';
@@ -47,6 +48,7 @@ export class Profile implements OnChanges {
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _toast = inject(MessageService);
   private readonly _router = inject(Router);
+  private readonly _title = inject(Title);
 
   protected toggleEditingProfile() {
     this.editingProfile.update((editingProfile) => !editingProfile);
@@ -107,6 +109,8 @@ export class Profile implements OnChanges {
   }
 
   ngOnChanges(): void {
-    this.profiles.loadProfileSections(this.activeProfile().id);
+    const profile = this.activeProfile();
+    updateRouteTitle(this._title, profile.name);
+    this.profiles.loadProfileSections(profile.id);
   }
 }

@@ -1,4 +1,6 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input, OnChanges } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { updateRouteTitle } from '../../utils';
 import { RouterLink } from '@angular/router';
 import { User } from '../accounts.types';
 
@@ -7,6 +9,12 @@ import { User } from '../accounts.types';
   imports: [RouterLink],
   templateUrl: './account.html',
 })
-export class Account {
+export class Account implements OnChanges {
   readonly user = input.required<User>();
+
+  private readonly _title = inject(Title);
+
+  ngOnChanges() {
+    updateRouteTitle(this._title, this.user().username);
+  }
 }

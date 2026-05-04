@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { Title } from '@angular/platform-browser';
 import { FormGroup } from '@angular/forms';
 
 const NETWORK_ERR_MSG = 'Failed! Check your internet connection.';
@@ -56,6 +57,13 @@ export function createResErrorHandler(
   defaultMessage: string,
 ) {
   return (res: unknown) => messageSignal.set(getResErrMsg(res) || defaultMessage);
+}
+
+export function updateRouteTitle(service: Title, title: string) {
+  if (title) {
+    const suffix = service.getTitle().split('|').slice(1).join('|');
+    service.setTitle(title + (suffix ? ' |' + suffix : ''));
+  }
 }
 
 export function mergeTailwindCNs(aCN: string | string[], bCN: string | string[]) {

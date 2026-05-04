@@ -6,9 +6,14 @@ import {
   optionalUserResolver,
 } from './accounts';
 import { Profile, profileResolver, CreateProfile, ProfileList } from './profiles';
+import { RouterStateSnapshot, Routes, TitleStrategy } from '@angular/router';
 import { Account } from './accounts/account/account';
-import { Routes } from '@angular/router';
+import { inject, Injectable } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { environment } from '../environments';
 import { NotFound } from './not-found';
+
+const appTitle = environment.title;
 
 export const routes: Routes = [
   {
@@ -16,7 +21,7 @@ export const routes: Routes = [
     runGuardsAndResolvers: 'always',
     resolve: { user: optionalUserResolver },
     children: [
-      { path: '', component: ProfileList },
+      { path: '', title: appTitle, component: ProfileList },
       { path: 'not-found', title: '404 Not Found', component: NotFound },
       {
         path: '',
@@ -52,3 +57,13 @@ export const routes: Routes = [
     ],
   },
 ];
+
+@Injectable({ providedIn: 'root' })
+export class RouteTitleStrategy extends TitleStrategy {
+  private readonly _title = inject(Title);
+  override updateTitle(snapshot: RouterStateSnapshot): void {
+    const routeTitle = this.buildTitle(snapshot);
+    const prefix = routeTitle && routeTitle !== appTitle ? routeTitle + ' | ' : '';
+    this._title.setTitle(prefix + appTitle);
+  }
+}
