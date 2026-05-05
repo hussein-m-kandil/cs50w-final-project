@@ -1,9 +1,9 @@
-<div class="bg-(--p-content-background) flex flex-col h-screen">
+<div class="bg-(--p-content-background)">
   <header>
     <app-mainbar />
   </header>
 
-  <main class="relative grow overflow-auto">
+  <main>
     @if (navigation.isInitial() || navigation.navigating() ||
     navigation.error()) {
     <app-navigator />

@@ -15,7 +15,7 @@ const accountsMock = {
 };
 
 const colorSchemeMock = {
-  selectedScheme: vi.fn(() => SCHEMES[1] as unknown),
+  selectedScheme: vi.fn<() => (typeof SCHEMES)[number]>(() => SCHEMES[1]),
   switch: vi.fn(),
   select: vi.fn(),
 };
@@ -58,35 +58,16 @@ describe('Mainbar', () => {
     ).toBeVisible();
   });
 
-  it('should show the color-scheme menu after clicking its toggler', async () => {
-    const actor = userEvent.setup();
-    await renderComponent();
-    await actor.click(screen.getByRole('button', { name: /change .* color scheme/i }));
-    let colorSchemeMenu!: HTMLElement;
-    await vi.waitFor(() => (colorSchemeMenu = screen.getByRole('menu', { name: /color scheme/i })));
-    for (const { value } of SCHEMES) {
-      const colorSchemeMenuItem = screen.getByRole('menuitem', { name: new RegExp(value, 'i') });
-      expect(colorSchemeMenu).toContainElement(colorSchemeMenuItem);
-      expect(colorSchemeMenuItem).toBeVisible();
-    }
-  });
-
   it('should change the color-scheme', async () => {
     const actor = userEvent.setup();
     await renderComponent();
     for (let i = 0; i < SCHEMES.length; i++) {
-      const scheme = SCHEMES[i];
-      await actor.click(screen.getByRole('button', { name: /change .* color scheme/i }));
-      await vi.waitFor(() =>
-        expect(screen.getByRole('menu', { name: /color scheme/i })).toBeVisible(),
+      const selectedScheme = colorSchemeMock.selectedScheme();
+      await actor.click(
+        screen.getByRole('button', { name: new RegExp(selectedScheme.value, 'i') }),
       );
-      await actor.click(screen.getByText(new RegExp(scheme.value, 'i')));
-      await vi.waitFor(() =>
-        expect(screen.queryByRole('menu', { name: /color scheme/i })).toBeNull(),
-      );
-      expect(colorSchemeMock.select).toHaveBeenNthCalledWith(i + 1, scheme);
+      expect(colorSchemeMock.switch).toHaveBeenCalledTimes(i + 1);
     }
-    expect(colorSchemeMock.switch).toHaveBeenCalledTimes(0);
   });
 
   it('should has the nav links for an unauthenticated user', async () => {
