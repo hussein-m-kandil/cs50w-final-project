@@ -2,6 +2,7 @@ import typing
 
 from django.db import transaction
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status, viewsets
@@ -42,6 +43,19 @@ class ProfileViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
+
+    def get_object(self):  # type: ignore
+        pk = self.kwargs.get('pk')
+        if not pk:
+            return super().get_object()
+        filters = {'owner__username': pk}
+        try:
+            filters = {'pk': int(pk)}
+        except ValueError:
+            pass
+        obj = get_object_or_404(self.get_queryset(), **filters)
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 @extend_schema(

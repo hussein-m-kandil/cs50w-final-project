@@ -8,7 +8,7 @@ import { MessageService } from 'primeng/api';
 import { Accounts } from '../../accounts';
 import { Profiles } from '../profiles';
 
-const profile: Profile = {
+const profile = {
   id: 1,
   tel: '01',
   bio: 'Bio',
@@ -17,7 +17,7 @@ const profile: Profile = {
   location: 'Z',
   email: 'x@y.z',
   public: false,
-};
+} as Profile;
 
 const accountsMock = { user: vi.fn(() => null as unknown) };
 const profilesMock = {

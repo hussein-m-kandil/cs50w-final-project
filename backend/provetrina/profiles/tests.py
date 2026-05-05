@@ -87,10 +87,15 @@ class TestProfiles(APITestCase):
                 self.assertContains(response, '"next":null', status_code=code)
                 self.assertContains(response, '"count":1', status_code=code)
                 self.assertContains(
+                    response, f'"id":{profile.pk}', status_code=code
+                )
+                self.assertContains(
                     response, f'"name":"{name}"', status_code=code
                 )
                 self.assertContains(
-                    response, f'"id":{profile.pk}', status_code=code
+                    response,
+                    f'"username":"{owner.username}"',
+                    status_code=code,
                 )
 
     def test_private_profiles_not_listed(self):
@@ -136,13 +141,34 @@ class TestProfiles(APITestCase):
             with self.subTest(authenticated=user):
                 if user:
                     self.authenticate(user)
-                response = self.client.get(f'{self.url}{profile.pk}/')
-                code = status.HTTP_200_OK
-                self.assertContains(
-                    response, f'"name":"{name}"', status_code=code
-                )
-                self.assertContains(
-                    response, f'"id":{profile.pk}', status_code=code
+                for url in [
+                    f'{self.url}{profile.pk}/',
+                    f'{self.url}{owner.username}/',
+                ]:
+                    with self.subTest(url=url):
+                        response = self.client.get(url)
+                        code = status.HTTP_200_OK
+                        self.assertContains(
+                            response, f'"name":"{name}"', status_code=code
+                        )
+                        self.assertContains(
+                            response, f'"id":{profile.pk}', status_code=code
+                        )
+                        self.assertContains(
+                            response,
+                            f'"username":"{owner.username}"',
+                            status_code=code,
+                        )
+
+    def test_non_exist_profile_not_retrieved(self):
+        user = models.User.objects.create_user(
+            username='x', password='123@Xyz'
+        )
+        for url in [f'{self.url}{777}/', f'{self.url}{user.username}/']:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertEqual(
+                    response.status_code, status.HTTP_404_NOT_FOUND
                 )
 
     def test_private_profile_not_retrieved_by_non_owner(self):
@@ -157,19 +183,31 @@ class TestProfiles(APITestCase):
             with self.subTest(authenticated=user):
                 if user:
                     self.authenticate(user)
-                response = self.client.get(f'{self.url}{profile.pk}/')
-                if user is owner:
-                    code = status.HTTP_200_OK
-                    self.assertContains(
-                        response, f'"name":"{name}"', status_code=code
-                    )
-                    self.assertContains(
-                        response, f'"id":{profile.pk}', status_code=code
-                    )
-                else:
-                    self.assertEqual(
-                        response.status_code, status.HTTP_404_NOT_FOUND
-                    )
+                for url in [
+                    f'{self.url}{profile.pk}/',
+                    f'{self.url}{owner.username}/',
+                ]:
+                    with self.subTest(url=url):
+                        response = self.client.get(url)
+                        if user is owner:
+                            code = status.HTTP_200_OK
+                            self.assertContains(
+                                response, f'"name":"{name}"', status_code=code
+                            )
+                            self.assertContains(
+                                response,
+                                f'"username":"{owner.username}"',
+                                status_code=code,
+                            )
+                            self.assertContains(
+                                response,
+                                f'"id":{profile.pk}',
+                                status_code=code,
+                            )
+                        else:
+                            self.assertEqual(
+                                response.status_code, status.HTTP_404_NOT_FOUND
+                            )
 
     def test_profile_updated(self):
         profile = models.Profile.objects.create(

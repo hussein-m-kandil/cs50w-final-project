@@ -23,6 +23,7 @@ export interface Profile extends Base {
   email: string;
   public: boolean;
   location: string;
+  username: string;
 }
 
 export interface Link extends SectionBase {

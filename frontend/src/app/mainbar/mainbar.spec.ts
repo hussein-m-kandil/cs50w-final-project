@@ -93,8 +93,8 @@ describe('Mainbar', () => {
     expect(profileLink).toBeVisible();
     expect(accountLink).toBeVisible();
     expect(signoutButton).toBeVisible();
-    expect(profileLink.href).toMatch(/1$/);
     expect(accountLink.href).toMatch(/account$/);
+    expect(profileLink.href).toMatch(new RegExp(`${user.username}$`));
   });
 
   it('should sign-out', async () => {

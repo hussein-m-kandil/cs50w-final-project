@@ -103,8 +103,8 @@ export class Profiles extends ListStore<Profile> {
     return this._http.get<ListResponse<Profile>>(`${this.baseUrl}profiles/`);
   }
 
-  getProfile(id: Profile['id']) {
-    return this._http.get<Profile>(`${this.baseUrl}profiles/${id}/`);
+  getProfile(idOrUsername: Profile['id' | 'username']) {
+    return this._http.get<Profile>(`${this.baseUrl}profiles/${idOrUsername}/`);
   }
 
   createProfile(data: Pick<Profile, 'name'> & Partial<Omit<Profile, 'name'>>) {

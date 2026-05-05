@@ -20,7 +20,7 @@
         @if (_user) {
         <li>
           <a pButton pRipple rounded [icon]="'pi pi-user'"
-             [routerLink]="['/', _user.id]" aria-label="Profile"></a>
+             [routerLink]="['/', _user.username]" aria-label="Profile"></a>
         </li>
         }
         <li>

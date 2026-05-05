@@ -7,6 +7,7 @@ from provetrina.profiles import models
 class ProfileSerializer(serializers.ModelSerializer):
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
     id = serializers.BigIntegerField(read_only=True, source='owner_id')
+    username = serializers.CharField(source='owner.username', read_only=True)
 
     def validate_owner(self, owner):
         if self.Meta.model.objects.filter(owner=owner).exists():

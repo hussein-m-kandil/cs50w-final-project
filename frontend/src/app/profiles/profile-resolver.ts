@@ -7,8 +7,8 @@ import { inject } from '@angular/core';
 import { Profiles } from './profiles';
 
 export const profileResolver: ResolveFn<Profile> = (route) => {
-  const profileId = parseInt(route.params['profileId']);
-  if (isNaN(profileId)) throw Error('Missing a profile id!');
+  const profileId = route.params['profileId'];
+  if (!profileId && profileId !== 0) throw Error('Missing a profile id!');
 
   const accounts = inject(Accounts);
   const user = accounts.user();
@@ -26,7 +26,7 @@ export const profileResolver: ResolveFn<Profile> = (route) => {
     catchError((error) => {
       if (error instanceof HttpErrorResponse && error.status === 404) {
         // Check whether the current user does not have a profile yet
-        if (user && user.id === profileId) {
+        if (user && (user.id === profileId || user.username === profileId)) {
           return of(createProfileRedirectCommand);
         }
         return of(notFountRedirectCommand);

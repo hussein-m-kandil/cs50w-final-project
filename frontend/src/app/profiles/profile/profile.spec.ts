@@ -13,6 +13,7 @@ const profile: ProfileT = {
   title: 'Blah',
   location: 'Z',
   email: 'x@y.z',
+  username: 'foo',
   public: true,
 };
 

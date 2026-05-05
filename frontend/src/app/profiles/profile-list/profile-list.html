@@ -22,7 +22,7 @@
         <article
                  class="border border-surface rounded-xl p-6 text-sm text-muted-color *:space-x-2 *:truncate">
           <h2 class="text-color text-3xl font-bold leading-7">
-            <a [routerLink]="[_profile.id]">
+            <a [routerLink]="['/', _profile.username]">
               {{ _profile.name }}
             </a>
           </h2>
