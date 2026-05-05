@@ -24,12 +24,12 @@
   </div>
   }
   <app-list-loader [loading]="_section.loading" [loadError]="_section.error"
-                   [pluralLabel]="'Links'">
+                   [pluralLabel]="_header">
     <div [class]="{'ps-8': !_editable}">
       @if (_editable) {
-      <p-orderlist [value]="_section.entries" dataKey="id" [dragdrop]="true"
-                   [responsive]="true" breakpoint="575px" scrollHeight="20rem"
-                   (onReorder)="reordered.emit()"
+      <p-orderlist [value]="_section.entries" [dataKey]="'id'"
+                   [dragdrop]="true" [responsive]="true" [breakpoint]="'575px'"
+                   [scrollHeight]="'20rem'" (onReorder)="reordered.emit()"
                    [pt]="{ pcListbox: { root: 'border-surface! border', list: 'p-0' } }">
         <ng-template #item let-_entry>
           <ng-container [ngTemplateOutlet]="entryFragment()"

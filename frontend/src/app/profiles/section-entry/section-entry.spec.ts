@@ -47,7 +47,7 @@ describe('SectionEntry', () => {
   it('should create', async () => {
     await renderComponent({ inputs: { ...entryData } });
     expect(
-      screen.getByRole('heading', { name: `${entryData.header} ${entryData.subheader}` }),
+      screen.getByRole('heading', { name: `${entryData.header}${entryData.subheader}` }),
     ).toBeVisible();
     expect(screen.getByRole('link', { name: entryData.header })).toHaveAttribute(
       'href',
