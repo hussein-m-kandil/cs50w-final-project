@@ -1,4 +1,13 @@
-import { input, output, Component, TemplateRef, booleanAttribute } from '@angular/core';
+import {
+  input,
+  output,
+  viewChild,
+  Component,
+  ElementRef,
+  TemplateRef,
+  afterNextRender,
+  booleanAttribute,
+} from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ButtonDirective } from 'primeng/button';
 import { InputText } from 'primeng/inputtext';
@@ -10,7 +19,6 @@ import { Ripple } from 'primeng/ripple';
   selector: 'app-list',
   imports: [NgTemplateOutlet, ListLoader, InputText, ButtonDirective, Ripple],
   templateUrl: './list.html',
-  styles: ``,
 })
 export class List {
   readonly store = input.required<ListStore<{ id: unknown }>>();
@@ -23,4 +31,18 @@ export class List {
   readonly searchValue = input('');
 
   readonly searched = output<string>();
+
+  private readonly searchBox = viewChild<ElementRef<HTMLInputElement>>('searchBox');
+
+  private readonly _focusFilledSearchBox = () => {
+    const searchBoxRef = this.searchBox();
+    if (searchBoxRef) {
+      const searchBox = searchBoxRef.nativeElement;
+      if (searchBox.value) searchBox.focus();
+    }
+  };
+
+  constructor() {
+    afterNextRender(this._focusFilledSearchBox);
+  }
 }

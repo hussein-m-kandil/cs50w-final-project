@@ -5,7 +5,7 @@ import { List } from '../../list';
 
 @Component({
   selector: 'app-profile-list',
-  imports: [List, RouterLink],
+  imports: [RouterLink, List],
   templateUrl: './profile-list.html',
 })
 export class ProfileList implements OnChanges {
@@ -16,12 +16,12 @@ export class ProfileList implements OnChanges {
   protected readonly profiles = inject(Profiles);
 
   protected search(value: string) {
-    const navigationOptions = { replaceUrl: true, onSameUrlNavigation: 'reload' } as const;
-    if (value) {
-      this._router.navigate(['/'], { ...navigationOptions, queryParams: { q: value } });
-    } else {
-      this._router.navigate(['/'], navigationOptions);
-    }
+    this._router.navigate(['/'], {
+      ...(value ? { queryParams: { q: value } } : {}),
+      onSameUrlNavigation: 'reload',
+      replaceUrl: true,
+      scroll: 'manual',
+    });
   }
 
   ngOnChanges() {
