@@ -14,6 +14,7 @@ import type {
   Sections as SectionT,
   SectionEntry as SectionEntryT,
 } from '../profiles.types';
+import { Button, ButtonDirective, ButtonLabel, ButtonIcon } from 'primeng/button';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { getResErrMsg, updateRouteTitle } from '../../utils';
 import { Title } from '@angular/platform-browser';
@@ -22,13 +23,12 @@ import { ProfileForm } from '../profile-form';
 import { MessageService } from 'primeng/api';
 import { Accounts } from '../../accounts';
 import { Router } from '@angular/router';
-import { Button } from 'primeng/button';
 import { Profiles } from '../profiles';
 import { Section } from '../section';
 
 @Component({
   selector: 'app-profile',
-  imports: [ProfileForm, SectionEntry, Section, Button],
+  imports: [ProfileForm, SectionEntry, Section, ButtonDirective, ButtonLabel, ButtonIcon, Button],
   templateUrl: './profile.html',
 })
 export class Profile implements OnChanges {

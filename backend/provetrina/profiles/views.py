@@ -2,12 +2,14 @@ import typing
 
 from django.db import transaction
 from django.db.models import Q
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
@@ -16,6 +18,7 @@ from provetrina.profiles.permissions import (
     IsProfileOwnerOrReadOnlyPublicProfile,
     IsSectionOwnerOrReadOnlyPublicProfile,
 )
+from provetrina.profiles.resume import Resume
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
@@ -34,8 +37,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 | Q(owner__username__icontains=search)
             )
             query = query & filtration_query
-        return models.Profile.objects.filter(query).order_by(
-            'name', 'owner__username', 'title'
+        return (
+            models.Profile.objects.select_related('owner')
+            .filter(query)
+            .order_by('name', 'owner__username', 'title')
         )
 
     def get_permissions(self):
@@ -56,6 +61,14 @@ class ProfileViewSet(viewsets.ModelViewSet):
         obj = get_object_or_404(self.get_queryset(), **filters)
         self.check_object_permissions(self.request, obj)
         return obj
+
+    @action(detail=True, methods=['get'])
+    def resume(self, request: Request, pk: int | str):
+        profile = self.get_object()  # get profile and check permissions
+        resume = Resume(profile)
+        return FileResponse(
+            resume.file, as_attachment=True, filename=resume.filename
+        )
 
 
 @extend_schema(
@@ -97,7 +110,7 @@ class SectionBaseModelViewSet(viewsets.ModelViewSet):
         )
 
     @action(detail=False, methods=['post'])
-    def reorder(self, request):
+    def reorder(self, request: Request):
         serializer = serializers.ReorderSerializer(data=request.data)
         if serializer.is_valid():
             try:
