@@ -1,67 +1,50 @@
-<div>
-  <div class="bg-primary text-primary-contrast">
-    <div class="min-h-screen flex flex-col justify-center">
-      <div class="text-center *:max-w-lg *:mx-auto p-4 mb-14">
-        <h1 class="text-5xl sm:text-7xl font-bold tracking-tight text-balance">
-          Shine as a skilled professional
-        </h1>
-        <p
-           class="mt-8 text-lg sm:text-xl/8 font-medium text-pretty text-primary-contrast/70">
-          Showcase yourself in a standardized portfolio that is easy for you to
-          build and for recruiters to review.
+<ng-template #ul let-_profiles>
+  <ul aria-label="Profile list"
+      class="p-4 flex flex-wrap justify-center *:grow">
+    @for (_profile of _profiles; track _profile.id) {
+    <li class="p-2 w-full max-w-xs">
+      <article
+               class="h-full border border-surface rounded-xl p-6 text-sm text-muted-color *:space-x-2 *:truncate">
+        <h2 class="text-color text-3xl font-bold leading-7">
+          <a [routerLink]="['/', _profile.username]">
+            {{ _profile.name }}
+          </a>
+        </h2>
+        @if (_profile.title) {
+        <div class="mb-3 text-primary text-lg font-bold">
+          {{ _profile.title }}
+        </div>
+        }
+        @if (_profile.location) {
+        <p>
+          <span class="pi pi-map-marker text-sm"></span>
+          <span>{{ _profile.location }}</span>
         </p>
-      </div>
-    </div>
-  </div>
+        }
+        @if (_profile.tel) {
+        <p>
+          <span class="pi pi-phone text-sm"></span>
+          <a href="tel:{{_profile.tel}}"
+             class="hover:underline">{{ _profile.tel }}</a>
+        </p>
+        }
+        @if (_profile.email) {
+        <p>
+          <span class="pi pi-envelope text-sm"></span>
+          <a href="mailto:{{_profile.email}}"
+             class="hover:underline">{{ _profile.email }}</a>
+        </p>
+        }
+        @if (_profile.bio) {
+        <p class="mt-3 text-base font-light">{{ _profile.bio }}</p>
+        }
+      </article>
+    </li>
+    }
+  </ul>
+</ng-template>
 
-  <ng-template #ul let-_profiles>
-    <ul aria-label="Profile list"
-        class="p-4 flex flex-wrap justify-center *:grow">
-      @for (_profile of _profiles; track _profile.id) {
-      <li class="p-2 w-full max-w-xs">
-        <article
-                 class="h-full border border-surface rounded-xl p-6 text-sm text-muted-color *:space-x-2 *:truncate">
-          <h2 class="text-color text-3xl font-bold leading-7">
-            <a [routerLink]="['/', _profile.username]">
-              {{ _profile.name }}
-            </a>
-          </h2>
-          @if (_profile.title) {
-          <div class="mb-3 text-primary text-lg font-bold">
-            {{ _profile.title }}
-          </div>
-          }
-          @if (_profile.location) {
-          <p>
-            <span class="pi pi-map-marker text-sm"></span>
-            <span>{{ _profile.location }}</span>
-          </p>
-          }
-          @if (_profile.tel) {
-          <p>
-            <span class="pi pi-phone text-sm"></span>
-            <a href="tel:{{_profile.tel}}"
-               class="hover:underline">{{ _profile.tel }}</a>
-          </p>
-          }
-          @if (_profile.email) {
-          <p>
-            <span class="pi pi-envelope text-sm"></span>
-            <a href="mailto:{{_profile.email}}"
-               class="hover:underline">{{ _profile.email }}</a>
-          </p>
-          }
-          @if (_profile.bio) {
-          <p class="mt-3 text-base font-light">{{ _profile.bio }}</p>
-          }
-        </article>
-      </li>
-      }
-    </ul>
-  </ng-template>
-
-  <app-list [autoLoadMore]="true" [store]="profiles" [pluralLabel]="'Profiles'"
-            [listFragment]="ul" [searchable]="true"
-            [searchLabel]="'Search by name or job title'"
-            (searched)="search($event)" class="block min-h-screen" />
-</div>
+<app-list [autoLoadMore]="true" [store]="profiles" [pluralLabel]="'Profiles'"
+          [listFragment]="ul" [searchable]="true"
+          [searchLabel]="'Search by name or job title'"
+          (searched)="search($event)" class="block min-h-screen" />

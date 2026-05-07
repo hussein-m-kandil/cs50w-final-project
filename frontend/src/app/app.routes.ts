@@ -5,13 +5,14 @@ import {
   AccountDeleteForm,
   optionalUserResolver,
 } from './accounts';
-import { Profile, profileResolver, CreateProfile, ProfileList } from './profiles';
 import { RouterStateSnapshot, Routes, TitleStrategy } from '@angular/router';
+import { Profile, profileResolver, CreateProfile } from './profiles';
 import { Account } from './accounts/account/account';
 import { inject, Injectable } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { environment } from '../environments';
 import { NotFound } from './not-found';
+import { Home } from './home';
 
 const appTitle = environment.title;
 
@@ -21,7 +22,7 @@ export const routes: Routes = [
     runGuardsAndResolvers: 'always',
     resolve: { user: optionalUserResolver },
     children: [
-      { path: '', title: appTitle, component: ProfileList },
+      { path: '', title: appTitle, component: Home },
       { path: 'not-found', title: '404 Not Found', component: NotFound },
       {
         path: '',
