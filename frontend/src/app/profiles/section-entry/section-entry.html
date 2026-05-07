@@ -3,7 +3,7 @@
 @let _headerHref = headerHref();
 @let _editable = editable();
 
-<h4 class="**:align-baseline w-full flex flex-wrap items-center">
+<h4 class="**:align-baseline w-full flex flex-wrap items-baseline">
   <span>
     <span class="text-xl font-bold text-primary">
       @if (_headerHref) {
@@ -18,10 +18,9 @@
     </span>
   </span>
   @if (_editable) {
-  <p-button text rounded class="ms-auto" [size]="'small'"
-            [severity]="'secondary'" [icon]="'pi pi-trash'"
-            [ariaLabel]="'Delete ${_header}'" [loading]="deleting()"
-            (onClick)="deleteEntry()" />
+  <p-button text rounded [size]="'small'" [severity]="'secondary'"
+            [icon]="'pi pi-trash'" [ariaLabel]="'Delete ${_header}'"
+            [loading]="deleting()" (onClick)="deleteEntry()" />
   }
 </h4>
 
