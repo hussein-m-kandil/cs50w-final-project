@@ -1,5 +1,5 @@
-import { Component, inject, input, OnChanges } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Profiles } from '../profiles';
 import { List } from '../../list';
 
@@ -8,25 +8,17 @@ import { List } from '../../list';
   imports: [RouterLink, List],
   templateUrl: './profile-list.html',
 })
-export class ProfileList implements OnChanges {
-  readonly q = input('');
-
-  private readonly _router = inject(Router);
-
+export class ProfileList implements OnInit {
   protected readonly profiles = inject(Profiles);
 
   protected search(value: string) {
-    this._router.navigate(['/'], {
-      ...(value ? { queryParams: { q: value } } : {}),
-      onSameUrlNavigation: 'reload',
-      replaceUrl: true,
-      scroll: 'manual',
-    });
+    this.profiles.reset();
+    this.profiles.searchValue.set(value);
+    this.profiles.load();
   }
 
-  ngOnChanges() {
+  ngOnInit() {
     this.profiles.reset();
-    this.profiles.searchValue.set(this.q() || '');
     this.profiles.load();
   }
 }

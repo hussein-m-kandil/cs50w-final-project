@@ -61,7 +61,7 @@
   </ng-template>
 
   <app-list [autoLoadMore]="true" [store]="profiles" [pluralLabel]="'Profiles'"
-            [listFragment]="ul" [searchable]="true" [searchValue]="q() || ''"
-            [searchLabel]="'Name or job title...'" (searched)="search($event)"
-            class="block min-h-screen" />
+            [listFragment]="ul" [searchable]="true"
+            [searchLabel]="'Search by name or job title'"
+            (searched)="search($event)" class="block min-h-screen" />
 </div>
