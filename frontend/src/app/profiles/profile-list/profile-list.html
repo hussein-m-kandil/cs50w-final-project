@@ -5,9 +5,15 @@
     <li class="p-2 w-full max-w-xs">
       <article
                class="h-full border border-surface rounded-xl p-6 text-sm text-muted-color *:space-x-2 *:truncate">
-        <h2 class="text-color text-3xl font-bold leading-7">
+        <h2 class="leading-tight">
           <a [routerLink]="['/', _profile.username]">
-            {{ _profile.name }}
+            <span class="text-color text-3xl font-bold">
+              {{ _profile.name }}
+            </span>
+            <br />
+            <span class="text-xs text-muted-color font-semibold">
+              @{{ _profile.username }}
+            </span>
           </a>
         </h2>
         @if (_profile.title) {

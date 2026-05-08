@@ -10,14 +10,18 @@
                       (succeeded)="handleProfileUpdate($event)"
                       (canceled)="toggleEditingProfile()" />
     } @else {
-    <div class="mb-2 flex flex-wrap items-center">
-      <h2 class="text-3xl font-bold">
-        {{ _profile.name }}
+    <div class="mb-2 flex flex-wrap items-start">
+      <h2 class="leading-tight">
+        <span class="text-3xl font-bold">{{ _profile.name }}</span>
         @if(_editable) {
         <span class="text-muted-color text-xs font-normal">
           ({{ _profile.public ? 'Public' : 'Private' }})
         </span>
         }
+        <br />
+        <span class="text-xs text-muted-color font-semibold">
+          @{{ _profile.username }}
+        </span>
       </h2>
       @if (_editable) {
       <div class="ms-auto space-x-2">
