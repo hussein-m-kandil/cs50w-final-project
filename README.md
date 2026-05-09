@@ -4,19 +4,17 @@ Shine as a skilled professional by showcasing yourself in a standardized portfol
 
 **Provetrina** is a professional talent directory and portfolio builder designed to bridge the gap between talented individuals and potential opportunities. Built as the final project for **CS50’s Introduction to Web Programming with Python and JavaScript**, it allows users to create, manage, and share comprehensive professional profiles.
 
----
+## Video Demo
+
+[Here is a demonstration video.](https://youtu.be/Ru4h8IAYGew)
+
+## Screenshots
 
 ![A screenshot of the home page.](./screenshots/provetrina_01.png)
 
----
-
 ![A screenshot of an editable profile page.](./screenshots/provetrina_02.png)
 
----
-
 ![A screenshot of a public profile page.](./screenshots/provetrina_03.png)
-
----
 
 ## Distinctiveness and Complexity
 
